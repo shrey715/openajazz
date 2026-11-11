@@ -35,12 +35,15 @@ Protocol = "https://github.com/shrey715/openajazz/blob/main/PROTOCOL.md"
 [project.scripts]
 openajazz = "openajazz.cli:main"
 
+[project.gui-scripts]
+openajazz-gtk = "openajazz.gui:main"
+
 [project.optional-dependencies]
 music = ["numpy>=1.21"]
 dev = ["pytest"]
 
 [tool.setuptools]
-packages = ["openajazz"]
+packages = ["openajazz", "openajazz.gui"]
 
 [tool.setuptools.dynamic]
 version = { attr = "openajazz.__version__" }

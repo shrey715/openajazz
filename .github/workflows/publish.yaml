@@ -26,6 +26,9 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     environment: pypi
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release: ${{ steps.version.outputs.release }}
     permissions:
       id-token: write  # trusted publishing
       contents: write  # tag + github release
@@ -93,6 +96,11 @@ jobs:
           pip install --user 'openajazz[music]'
           \`\`\`
 
+          **Desktop app (Flatpak, GTK):** download \`openajazz-$V.flatpak\` below (it's added a few minutes after the release), then
+          \`\`\`sh
+          flatpak install --user openajazz-$V.flatpak
+          \`\`\`
+
           **AppImage (Linux, nothing else needed):**
           \`\`\`sh
           curl -LO https://github.com/${{ github.repository }}/releases/download/v$V/openajazz-$V-x86_64.AppImage
@@ -106,3 +114,33 @@ jobs:
           sed -i 's/^          //' notes.md
           cat notes.md
           gh release create "v$V" release/* --title "v$V" --notes-file notes.md --generate-notes
+
+  flatpak:
+    needs: publish
+    if: needs.publish.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v5
+      - uses: flathub-infra/flatpak-github-actions/flatpak-builder@master
+        with:
+          bundle: openajazz-${{ needs.publish.outputs.version }}.flatpak
+          manifest-path: packaging/flatpak/io.github.shrey715.openajazz.yml
+          cache-key: flatpak-${{ github.sha }}
+
+  attach-flatpak:
+    needs: [publish, flatpak]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: "*x86_64*"
+          merge-multiple: true
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ needs.publish.outputs.version }}
+        run: gh release upload "v$V" openajazz-$V.flatpak -R "${{ github.repository }}" --clobber

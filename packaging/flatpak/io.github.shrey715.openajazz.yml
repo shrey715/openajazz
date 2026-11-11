@@ -1,0 +1,40 @@
+# Flatpak build of the openajazz desktop app (GTK 4 + libadwaita).
+#   flatpak-builder --user --install --force-clean build-dir packaging/flatpak/io.github.shrey715.openajazz.yml
+app-id: io.github.shrey715.openajazz
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+command: openajazz-gtk
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=all                              # the keyboard's hidraw node
+  - --socket=pulseaudio                       # music sync listens to what's playing
+  - --filesystem=xdg-config/openajazz:create  # same saved settings as the CLI and TUI
+modules:
+  - name: numpy
+    buildsystem: simple
+    build-commands:
+      - pip3 install --no-index --no-deps --prefix=/app numpy-*.whl
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/da/24/3bd070f3269dc609d8f26b2643f62ef91bb415841c0b294805aaf7fe06da/numpy-2.5.4-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+        sha256: 6ffa07666f8da0eef81d149934a626d0d95fbd6838432a33e66245423a9062c0
+
+  - name: openajazz
+    buildsystem: simple
+    build-commands:
+      - install -d /app/lib/python3.13/site-packages
+      - cp -r openajazz /app/lib/python3.13/site-packages/
+      - install -Dm755 packaging/flatpak/openajazz-gtk.sh /app/bin/openajazz-gtk
+      - install -Dm644 packaging/flatpak/io.github.shrey715.openajazz.desktop -t /app/share/applications
+      - install -Dm644 packaging/flatpak/io.github.shrey715.openajazz.metainfo.xml -t /app/share/metainfo
+      - install -Dm644 web/icon.svg /app/share/icons/hicolor/scalable/apps/io.github.shrey715.openajazz.svg
+    sources:
+      - type: dir
+        path: ../..
+        skip:
+          - .venv
+          - build
+          - dist

@@ -14,7 +14,8 @@ from pathlib import Path
 from . import keys
 
 _XDG = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
-CONFIG_DIR = _XDG / "openajazz"
+# OPENAJAZZ_CONFIG_DIR lets the Flatpak share ~/.config/openajazz with the CLI
+CONFIG_DIR = Path(os.environ.get("OPENAJAZZ_CONFIG_DIR", _XDG / "openajazz"))
 OLD_CONFIG_DIR = _XDG / "ak820ctl"  # the project's name before 0.4
 STATE_FILE = CONFIG_DIR / "state.json"
 PRESET_DIR = CONFIG_DIR / "presets"

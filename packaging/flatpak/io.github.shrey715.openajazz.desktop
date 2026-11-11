@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=openajazz
+GenericName=Keyboard settings
+Comment=Lighting, per-key RGB, remaps, macros and music sync for AJAZZ keyboards
+Exec=openajazz-gtk
+Icon=io.github.shrey715.openajazz
+Terminal=false
+StartupNotify=true
+Categories=Settings;HardwareSettings;GTK;
+Keywords=keyboard;rgb;ajazz;ak820;lighting;macro;

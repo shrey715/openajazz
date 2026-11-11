@@ -37,15 +37,17 @@ class AudioError(RuntimeError):
 
 
 class AudioSource:
-    """Mono s16le capture of the default sink monitor."""
+    """Mono s16le capture of what's playing ("monitor") or the microphone ("mic")."""
 
-    def __init__(self):
+    def __init__(self, source: str = "monitor"):
+        mic = source == "mic"
         if shutil.which("parec"):
-            cmd = ["parec", "--device=@DEFAULT_MONITOR@", "--format=s16le", f"--rate={RATE}",
+            device = "@DEFAULT_SOURCE@" if mic else "@DEFAULT_MONITOR@"
+            cmd = ["parec", f"--device={device}", "--format=s16le", f"--rate={RATE}",
                    "--channels=1", "--latency-msec=15", "--raw"]
         elif shutil.which("pw-record"):
-            cmd = ["pw-record", "-P", "{ stream.capture.sink=true }", "--format=s16",
-                   f"--rate={RATE}", "--channels=1", "-"]
+            props = [] if mic else ["-P", "{ stream.capture.sink=true }"]
+            cmd = ["pw-record", *props, "--format=s16", f"--rate={RATE}", "--channels=1", "-"]
         else:
             raise AudioError("no audio capture tool found (install pipewire-pulse or pulseaudio-utils)")
         # own session: Ctrl-C in the terminal should stop us, not kill the recorder
@@ -155,8 +157,8 @@ class Visualizer:
     """capture -> FFT -> frames on a background thread."""
 
     def __init__(self, kb, style="spectrum", color=None, fps=30, sensitivity=1.0,
-                 on_frame=None, on_error=None):
-        self.kb, self.fps = kb, fps
+                 on_frame=None, on_error=None, source="monitor"):
+        self.kb, self.fps, self.source = kb, fps, source
         self.renderer = Renderer(style, color)
         self.analyzer = Analyzer(sensitivity)
         self.on_frame = on_frame or (lambda frame, levels: None)
@@ -166,7 +168,7 @@ class Visualizer:
         self.audio = None
 
     def start(self):
-        self.audio = AudioSource()
+        self.audio = AudioSource(self.source)
         if self.kb is not None:
             self.kb.enter_live_mode(keys.MUSIC_MODE)
         self._thread = threading.Thread(target=self._run, daemon=True)

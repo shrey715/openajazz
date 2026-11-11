@@ -31,3 +31,16 @@ jobs:
       - name: web/data.js matches openajazz/keys.py
         run: python tools/gen_web_data.py --check
       - run: node tests/web.test.mjs
+
+  flatpak:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v5
+      - uses: flathub-infra/flatpak-github-actions/flatpak-builder@master
+        with:
+          bundle: openajazz-dev.flatpak
+          manifest-path: packaging/flatpak/io.github.shrey715.openajazz.yml
+          cache-key: flatpak-${{ github.sha }}

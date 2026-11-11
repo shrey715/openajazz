@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.shrey715.openajazz</id>
+  <name>openajazz</name>
+  <summary>Control AJAZZ keyboards: lighting, per-key RGB, remaps, macros</summary>
+  <developer id="io.github.shrey715">
+    <name>Shreyas Deb</name>
+  </developer>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <description>
+    <p>Unofficial control for AJAZZ keyboards without the Windows app. Supports the AK820 Max Plus over the USB cable or the 2.4G dongle.</p>
+    <ul>
+      <li>All built-in lighting effects with brightness, speed, direction and colour</li>
+      <li>Paint your own per-key designs and store them on the keyboard</li>
+      <li>Remap keys, record macros and change sleep and response settings</li>
+      <li>Music sync: the keyboard follows whatever is playing</li>
+    </ul>
+    <p>Not affiliated with AJAZZ.</p>
+  </description>
+  <launchable type="desktop-id">io.github.shrey715.openajazz.desktop</launchable>
+  <url type="homepage">https://github.com/shrey715/openajazz</url>
+  <url type="bugtracker">https://github.com/shrey715/openajazz/issues</url>
+  <content_rating type="oars-1.1"/>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <releases>
+    <release version="0.5.0" date="2026-11-11"/>
+  </releases>
+</component>

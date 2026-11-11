@@ -448,6 +448,12 @@ def cmd_udev(args):
     ok(f"wrote {UDEV_PATH}; replug the keyboard or dongle if it still says permission denied")
 
 
+def cmd_gui(args):
+    from .gui import main as gui_main
+    argv = (["--demo"] if args.dry_run else []) + (["--device", args.device] if args.device else [])
+    raise SystemExit(gui_main(argv))
+
+
 def cmd_tui(args):
     from .tui import run
     run(args.device, args.dry_run)
@@ -473,6 +479,7 @@ def build_parser() -> argparse.ArgumentParser:
         return s
 
     add("tui", cmd_tui, "full-screen interface (default)")
+    add("gui", cmd_gui, "desktop app (GTK 4; the Flatpak is the easy way to get it)")
     add("devices", cmd_devices, "list detected interfaces", ["detect"])
     add("status", cmd_status, "battery and power state", ["info"])
     add("modes", cmd_modes, "list lighting effects and colours", ["effects"])
