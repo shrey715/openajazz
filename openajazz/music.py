@@ -1,7 +1,8 @@
 """Audio-reactive lighting through the live-frame path (like the vendor's music mode).
 
 Audio comes from the monitor of the default output (whatever is playing), via
-`parec` or `pw-record`.  Needs numpy:  pip install 'openajazz[music]'.
+`parec` or `pw-record`.  Needs numpy: install with the music extra,
+e.g. `uv tool install 'openajazz[music]'`.
 The renderer styles follow prasoondev/ajazz-linux (MIT).
 """
 
@@ -22,6 +23,13 @@ RATE = 48000
 FFT_SIZE = 2048
 BANDS = 16
 STYLES = ("spectrum", "pulse", "wave")
+
+
+NEEDS_NUMPY = (
+    "music sync needs numpy. Install openajazz with the music extra: "
+    "uv tool install --upgrade 'openajazz[music]'  (or: pipx install --force "
+    "'openajazz[music]', or pip install 'openajazz[music]'). The AppImage already has it."
+)
 
 
 class AudioError(RuntimeError):
@@ -76,7 +84,7 @@ class Analyzer:
         try:
             import numpy as np
         except ImportError as e:
-            raise AudioError("music sync needs numpy: pip install 'openajazz[music]'") from e
+            raise AudioError(NEEDS_NUMPY) from e
         self.np = np
         self.window = np.hanning(FFT_SIZE).astype(np.float32)
         freqs = np.fft.rfftfreq(FFT_SIZE, 1 / RATE)

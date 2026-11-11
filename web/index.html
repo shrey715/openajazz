@@ -253,7 +253,11 @@
               <label>Colour</label>
               <div class="seg" id="music-color">
                 <button data-v="rainbow" class="active">Rainbow</button>
-                <button data-v="brush">Brush colour</button>
+                <button data-v="single">Single colour</button>
+              </div>
+              <div id="music-pick" class="music-pick hidden">
+                <label class="color-chip" title="Music colour"><input type="color" id="music-hex" value="#ff5c8a"><span>Pick</span></label>
+                <div id="music-swatches" class="swatches small"></div>
               </div>
             </div>
             <div class="field">

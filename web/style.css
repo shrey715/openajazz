@@ -242,6 +242,7 @@ input:focus { border-color: #4a4d57; }
 .mini input { width: 72px; flex: none; }
 
 /* ---------- music ---------- */
+.music-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-top: 0.5rem; }
 canvas.bars { width: 100%; height: 150px; border-radius: 10px; background: #08090b; border: 1px solid var(--line); }
 
 /* ---------- misc ---------- */

@@ -61,7 +61,8 @@ the real keyboard right away; upload to store it.
 key resets the keymap and re-sends your other remaps and macros, like the
 vendor app does.
 
-**Music.** Needs `numpy` (`pip install 'openajazz[music]'`) and PipeWire/Pulse.
+**Music.** Needs the music extra (`uv tool install 'openajazz[music]'`) and PipeWire/Pulse.
+Pick *single colour* to light everything in one colour you choose.
 """
 
 
@@ -340,6 +341,10 @@ class AK820App(App):
     #music-side { width: 1fr; }
     #music-bars { height: 3; padding: 0 2; }
     #music-sens { width: 12; }
+    #music-swatch { width: 6; height: 3; margin: 0 1 0 0; }
+    #music-hex { width: 18; }
+    #music-swatches .swatch { width: 4; }
+    .music-single-off { display: none; }
 
     #settings-row { height: auto; }
     #settings-row RadioSet { width: 24; margin: 1 2 1 0; }
@@ -518,8 +523,15 @@ class AK820App(App):
                                  id="music-style")
                 with Horizontal(classes="row"):
                     yield Label("Colour", classes="field")
-                    yield Select([("rainbow", "rainbow"), ("brush colour", "brush")],
+                    yield Select([("rainbow", "rainbow"), ("single colour", "single")],
                                  value="rainbow", allow_blank=False, id="music-color")
+                with Horizontal(classes="row", id="music-pick-row"):
+                    yield Label("Pick", classes="field")
+                    yield Static("", id="music-swatch")
+                    yield Input(value="ff5c8a", placeholder="RRGGBB or name", id="music-hex")
+                with Horizontal(classes="row", id="music-swatches"):
+                    for name in ("red", "orange", "yellow", "green", "cyan", "blue", "purple", "pink", "white"):
+                        yield Swatch(name)
                 with Horizontal(classes="row"):
                     yield Label("Sensitivity", classes="field")
                     yield LevelPicker(3, id="music-sens-level")
@@ -577,6 +589,8 @@ class AK820App(App):
         self.refresh_remaps()
         self.refresh_macros()
         self.show_lights_state()
+        self.set_music_rgb(self.music_rgb)
+        self.show_music_picker()
         self.set_interval(1 / 12, self.animate_preview)
         self.connect()
 
@@ -816,7 +830,11 @@ class AK820App(App):
 
     @on(Swatch.Picked)
     def swatch_picked(self, event: Swatch.Picked):
-        self.set_brush(event.rgb)
+        if self.query_one(TabbedContent).active == "tab-music":
+            self.set_music_rgb(event.rgb)
+            self.query_one("#music-hex", Input).value = rgb_hex(event.rgb)
+        else:
+            self.set_brush(event.rgb)
 
     @on(Input.Submitted, "#hexcolor")
     @on(Input.Submitted, "#hexcolor2")
@@ -1073,12 +1091,48 @@ class AK820App(App):
 
     # -- music -------------------------------------------------------------
 
+    # -- music colour --------------------------------------------------------
+
+    music_rgb = (255, 92, 138)
+
+    def music_colour(self):
+        """None for rainbow, else the colour picked in the music tab."""
+        if self.query_one("#music-color", Select).value == "rainbow":
+            return None
+        return self.music_rgb
+
+    def set_music_rgb(self, rgb):
+        self.music_rgb = tuple(rgb)
+        sw = self.query_one("#music-swatch", Static)
+        sw.styles.background = "rgb({},{},{})".format(*rgb)
+        if self.visualizer:
+            self.visualizer.renderer.color = self.music_colour()
+
+    def show_music_picker(self):
+        single = self.query_one("#music-color", Select).value == "single"
+        for rid in ("#music-pick-row", "#music-swatches"):
+            self.query_one(rid).set_class(not single, "music-single-off")
+        if self.visualizer:
+            self.visualizer.renderer.color = self.music_colour()
+
+    @on(Select.Changed, "#music-color")
+    def music_color_changed(self):
+        self.show_music_picker()
+
+    @on(Input.Submitted, "#music-hex")
+    @on(Input.Changed, "#music-hex")
+    def music_hex(self, event):
+        try:
+            self.set_music_rgb(parse_color(event.value))
+        except Exception:
+            pass  # half-typed colour, keep the last good one
+
     @on(Button.Pressed, "#music-start")
     def music_start(self):
         if self.visualizer and self.visualizer.running:
             return
         from .music import AudioError, Visualizer
-        color = None if self.query_one("#music-color", Select).value == "rainbow" else self.brush
+        color = self.music_colour()
         sensitivity = 0.4 + 0.3 * self.query_one("#music-sens-level", LevelPicker).value
         kb = None if (self.dry_run or self.kb is None) else self.kb
         try:

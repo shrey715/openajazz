@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+- Music sync: pick a single colour right in the music section (web and TUI), with a colour picker and quick swatches. It changes live while music is playing, and no longer borrows the per-key brush.
+- When numpy is missing, the error now shows the exact command for uv, pipx or pip (`uv tool install --upgrade 'openajazz[music]'`). The AppImage already includes it.
+
 ## 0.4.0
 
 The project is now **openajazz** (it was ak820ctl), so other AJAZZ keyboards can join later. The command is `openajazz`, the web app lives at [openajazz.vercel.app](https://openajazz.vercel.app), and your saved settings and presets move over by themselves.

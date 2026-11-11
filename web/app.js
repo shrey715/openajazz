@@ -739,7 +739,27 @@ const ticker = new Worker("ticker.js");
 ticker.onmessage = () => music.running && musicTick();
 seg("music-source", () => {});
 seg("music-style", (v) => { if (music.renderer) music.renderer.style = v; });
-seg("music-color", (v) => { if (music.renderer) music.renderer.color = v === "brush" ? brush : null; });
+let musicRgb = [255, 92, 138];
+const musicColour = () => (segValue("music-color") === "single" ? musicRgb : null);
+function setMusicRgb(rgb) {
+  musicRgb = rgb.slice();
+  $("#music-hex").value = hex(musicRgb);
+  if (music.renderer) music.renderer.color = musicColour();
+}
+seg("music-color", () => {
+  $("#music-pick").classList.toggle("hidden", segValue("music-color") !== "single");
+  if (music.renderer) music.renderer.color = musicColour();
+});
+$("#music-hex").addEventListener("input", (e) => setMusicRgb(fromHex(e.target.value)));
+for (const [name, rgb] of Object.entries(NAMED)) {
+  if (name === "off") continue;
+  const b = document.createElement("button");
+  b.className = "swatch";
+  b.style.background = `rgb(${rgb})`;
+  b.title = name;
+  b.addEventListener("click", () => setMusicRgb(rgb));
+  $("#music-swatches").append(b);
+}
 $("#music-sens").addEventListener("input", (e) => {
   rangeFill(e.target);
   if (music.analyzer) music.analyzer.sensitivity = 0.4 + 0.3 * Number(e.target.value);
@@ -763,7 +783,7 @@ async function startMusic() {
     node.smoothingTimeConstant = 0;
     music.ctx.createMediaStreamSource(stream).connect(node);
     music.analyzer = new Analyzer(node, music.ctx.sampleRate, 0.4 + 0.3 * Number($("#music-sens").value));
-    music.renderer = new MusicRenderer(segValue("music-style"), segValue("music-color") === "brush" ? brush : null);
+    music.renderer = new MusicRenderer(segValue("music-style"), musicColour());
     if (kb) await kb.enterLiveMode();
     music.running = true;
     stream.getTracks().forEach((t) => t.addEventListener("ended", stopMusic));

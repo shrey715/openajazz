@@ -35,3 +35,14 @@ def test_settings_migrate_from_old_name(tmp_path, monkeypatch):
     monkeypatch.setattr(state, "STATE_FILE", new / "state.json")
     assert state.load()["remaps"] == {"0:57": 41}
     assert (new / "presets" / "mine.json").exists()
+
+
+def test_missing_numpy_says_how_to_install(monkeypatch):
+    import sys
+    import pytest
+    from openajazz import music
+    monkeypatch.setitem(sys.modules, "numpy", None)  # import numpy -> ImportError
+    with pytest.raises(music.AudioError) as e:
+        music.Analyzer()
+    assert "uv tool install --upgrade 'openajazz[music]'" in str(e.value)
+    assert "pipx" in str(e.value)

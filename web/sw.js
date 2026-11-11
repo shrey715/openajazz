@@ -1,5 +1,5 @@
 // Offline cache for the app shell, so the installed web app opens without a network.
-const CACHE = "openajazz-v5";
+const CACHE = "openajazz-v6";
 const SHELL = ["./", "index.html", "style.css", "app.js", "protocol.js", "effects.js", "data.js",
   "icon.svg", "manifest.webmanifest", "ticker.js"];
 
