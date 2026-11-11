@@ -22,6 +22,7 @@ Pick one:
 | | |
 |---|---|
 | **Web, no install** | open **[openajazz.vercel.app](https://openajazz.vercel.app)** in Chrome, Edge or Opera on a computer |
+| **Desktop app (Flatpak)** | download `openajazz-<version>.flatpak` from [releases](https://github.com/shrey715/openajazz/releases/latest), then `flatpak install --user openajazz-*.flatpak` |
 | **pipx / uv** | `pipx install 'openajazz[music]'` or `uv tool install 'openajazz[music]'` |
 | **AppImage** | grab it from [releases](https://github.com/shrey715/openajazz/releases/latest), `chmod +x`, run |
 
@@ -39,6 +40,7 @@ It only opens the keyboard's settings interface to your user, never the typing o
 
 ```sh
 openajazz                          # full-screen TUI
+openajazz gui                      # desktop app (or launch "openajazz" from your app menu with the Flatpak)
 openajazz status                   # battery
 openajazz light breathing -c cyan  # effect + colour (openajazz modes lists them)
 openajazz lights off               # and `on` brings your lighting back

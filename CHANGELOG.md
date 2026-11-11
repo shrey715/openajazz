@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0
+
+- New desktop app (GTK 4 + libadwaita) for people who'd rather not keep a browser tab or a terminal open. It has everything the web app has: the live keyboard, the effect gallery, per-key painting with presets, remaps, macros, music sync and settings.
+- Get it as a Flatpak from the release page (`flatpak install --user openajazz-0.5.0.flatpak`). It shares saved settings with the CLI and TUI.
+- Music sync can listen to the microphone as well as to what's playing.
+- `openajazz gui` starts the desktop app from the CLI if GTK is installed.
+
 ## 0.4.1
 
 - Music sync: pick a single colour right in the music section (web and TUI), with a colour picker and quick swatches. It changes live while music is playing, and no longer borrows the per-key brush.
