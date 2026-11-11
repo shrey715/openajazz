@@ -35,28 +35,35 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: check whether this version is already on pypi
+      - name: what is already published
         id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           v=$(python -c "import re; print(re.search(r'__version__ = \"(.+?)\"', open('openajazz/__init__.py').read()).group(1))")
           echo "version=$v" >> "$GITHUB_OUTPUT"
           if curl -sfo /dev/null "https://pypi.org/pypi/openajazz/$v/json"; then
-            echo "new=false" >> "$GITHUB_OUTPUT"
-            echo "$v is already on pypi, nothing to publish"
+            echo "pypi=false" >> "$GITHUB_OUTPUT"; echo "$v already on pypi"
           else
-            echo "new=true" >> "$GITHUB_OUTPUT"
+            echo "pypi=true" >> "$GITHUB_OUTPUT"
+          fi
+          # a release can be missing even when pypi has the version (e.g. a failed appimage build)
+          if gh release view "v$v" -R "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "release=false" >> "$GITHUB_OUTPUT"; echo "v$v already released"
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: build
-        if: steps.version.outputs.new == 'true'
+        if: steps.version.outputs.pypi == 'true' || steps.version.outputs.release == 'true'
         run: pip install build && python -m build
 
       - name: upload to pypi
-        if: steps.version.outputs.new == 'true'
+        if: steps.version.outputs.pypi == 'true'
         uses: pypa/gh-action-pypi-publish@release/v1
 
       - name: build appimage
-        if: steps.version.outputs.new == 'true'
+        if: steps.version.outputs.release == 'true'
         env:
           APPIMAGE_EXTRACT_AND_RUN: "1"
         run: |
@@ -66,7 +73,7 @@ jobs:
           mv dist/*.AppImage release/
 
       - name: github release
-        if: steps.version.outputs.new == 'true'
+        if: steps.version.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           V: ${{ steps.version.outputs.version }}

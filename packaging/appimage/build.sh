@@ -48,6 +48,9 @@ mkdir -p AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/256x256/ap
 cp AppDir/openajazz.desktop AppDir/usr/share/applications/
 cp AppDir/openajazz.png AppDir/usr/share/icons/hicolor/256x256/apps/
 
+# extracted python ships some 0700 folders; appimagetool rejects those
+chmod -R a+rX AppDir
+
 echo "• packing"
 OUT="$ROOT/dist/openajazz-$VERSION-x86_64.AppImage"
 ARCH=x86_64 ./appimagetool --no-appstream AppDir "$OUT" >/dev/null 2>&1 \
